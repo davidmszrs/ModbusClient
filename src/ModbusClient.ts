@@ -1,6 +1,6 @@
 import { ModbusPacket } from './ModbusPacket'
 import net from 'net'
-import { ModbusRequest, ModbusResponse } from './types/modbus-client'
+import { ModbusRequest, ModbusResponse } from './types'
 
 /**
  * Small wrapper for a Modbus TCP client

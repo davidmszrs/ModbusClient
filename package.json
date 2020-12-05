@@ -1,12 +1,13 @@
 {
   "name": "modbusclient",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "A wrapper for TCP sockets built for the Modbus protocol.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "ModbusClient.js",
+  "types": "ModbusClient.d.ts",
   "scripts": {
     "prepublish": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "tsc && copy /Y package.json dist && copy /Y README.md dist && cd dist && npm publish"
   },
   "repository": {
     "type": "git",
