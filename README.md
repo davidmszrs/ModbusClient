@@ -74,7 +74,7 @@ function log(response) {
   console.log(`Transaction ID: ${response.transactionId}`)
   console.log(`Function code: ${response.functionCode}`)
   console.log(`Total number of registers: ${response.noOfRegisters}`)
-  console.log(`Values: ${response.values.join(', ')}`)
+  console.log(`Values: ${response.registerValues.join(', ')}`)
 }
 ```
 
@@ -96,7 +96,7 @@ function log(response) {
   console.log(`Transaction ID: ${response.transactionId}`)
   console.log(`Function code: ${response.functionCode}`)
   console.log(`Total number of registers: ${response.noOfRegisters}`)
-  console.log(`Values: ${response.values.join(', ')}`)
+  console.log(`Values: ${response.registerValues.join(', ')}`)
 }
 
 async function example() {
