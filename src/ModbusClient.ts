@@ -56,38 +56,26 @@ export class ModbusClient {
         ).getPacket(),
         onSent ? onSent : undefined
       )
-
-      this.client.on('data', (tcpResponse: string) =>
-        this.handleReceivedData(tcpResponse, resolve, reject)
+      let client = this.client
+      let parseResponse = this.parseResponse
+      this.client.on(
+        'data',
+        function listener(tcpResponse: string) {
+          if (typeof tcpResponse !== 'string') {
+            client.destroy(new Error('Did not receive a string'))
+            reject(new Error('Did not receive a string'))
+            return
+          }
+          if (tcpResponse.substr(14, 1) === '8') {
+            client.destroy(new Error('Invalid request'))
+            reject(new Error('Invalid request'))
+            return
+          }
+          client.removeListener('data', listener)
+          resolve(parseResponse(tcpResponse))
+        }.bind(this)
       )
     })
-  }
-
-  /**
-   * Callback for the 'data' event listener on the TCP client.
-   * Should be short-lived, unregistered when a response is received.
-   *
-   * @param tcpResponse - string to be processed into a ModbusResponse object
-   * @param resolve - Promise resolver
-   * @param reject - Promise rejecter
-   */
-  private handleReceivedData(
-    tcpResponse: string,
-    resolve: (value: ModbusResponse | PromiseLike<ModbusResponse>) => void,
-    reject: (value: any) => void
-  ) {
-    if (typeof tcpResponse !== 'string') {
-      this.client.destroy(new Error('Did not receive a string'))
-      reject(new Error('Did not receive a string'))
-      return
-    }
-    if (tcpResponse.substr(14, 1) === '8') {
-      this.client.destroy(new Error('Invalid request'))
-      reject(new Error('Invalid request'))
-      return
-    }
-    this.client.off('data', this.handleReceivedData)
-    resolve(this.parseResponse(tcpResponse))
   }
 
   /**
