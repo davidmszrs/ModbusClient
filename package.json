@@ -1,6 +1,6 @@
 {
   "name": "modbusclient",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A wrapper for TCP sockets built for the Modbus protocol.",
   "main": "ModbusClient.js",
   "types": "ModbusClient.d.ts",

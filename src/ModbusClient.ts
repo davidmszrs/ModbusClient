@@ -49,33 +49,36 @@ export class ModbusClient {
    */
   public async send(request: ModbusRequest, onSent?: () => void): Promise<ModbusResponse> {
     return new Promise((resolve, reject) => {
-      this.client.write(
-        new ModbusPacket(
-          Buffer.from([request.functionCode, 0, request.startAddress, 0, request.noOfRegisters, 0]),
-          request.slaveId
-        ).getPacket(),
-        onSent ? onSent : undefined
-      )
-      let client = this.client
-      let parseResponse = this.parseResponse
-      this.client.on(
-        'data',
-        function listener(tcpResponse: string) {
-          if (typeof tcpResponse !== 'string') {
-            client.destroy(new Error('Did not receive a string'))
-            reject(new Error('Did not receive a string'))
-            return
-          }
-          if (tcpResponse.substr(14, 1) === '8') {
-            client.destroy(new Error('Invalid request'))
-            reject(new Error('Invalid request'))
-            return
-          }
-          client.removeListener('data', listener)
-          resolve(parseResponse(tcpResponse))
-        }.bind(this)
-      )
+      this.client.write(new ModbusPacket(Buffer.from([request.functionCode, 0, request.startAddress, 0, request.noOfRegisters, 0]), request.slaveId).getPacket(), onSent ? onSent : undefined)
+      this.client.on('data', this.listenerWithRemovalAttached(resolve, reject))
     })
+  }
+
+  /**
+   * Generates an event listener function that should handle 'data' events
+   *
+   * @param resolve - Promise resolver that should execute on data arrival
+   * @param reject - Promise rejecter that should execute on error
+   *
+   * @returns a Function that handles the received packet
+   */
+
+  private listenerWithRemovalAttached(resolve: (value: ModbusResponse) => void, reject: (reason: any) => void): (tcpResponse: string) => void {
+    let that = this
+    return function listener(tcpResponse: string) {
+      if (typeof tcpResponse !== 'string') {
+        that.client.destroy(new Error('Did not receive a string'))
+        reject(new Error('Did not receive a string'))
+        return
+      }
+      if (tcpResponse.substr(14, 1) === '8') {
+        that.client.destroy(new Error('Invalid request'))
+        reject(new Error('Invalid request'))
+        return
+      }
+      that.client.removeListener('data', listener)
+      resolve(that.parseResponse(tcpResponse))
+    }
   }
 
   /**
